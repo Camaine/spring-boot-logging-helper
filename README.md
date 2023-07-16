@@ -11,21 +11,22 @@ To use this library, you'll need:
 
 ## Installation
 
-### Using Gradle or Maven(NOT YET)
+### Using Gradle or Maven
 
 To include the Logging library in your Maven project, add the following to your pom.xml:
 ````
 <dependency>
-<groupId>com.yourcompany</groupId>
-<artifactId>spring-logging-helper</artifactId>
-<version>1.0.0</version>
+  <groupId>io.github.camaine</groupId>
+  <artifactId>spring-logging-helper</artifactId>
+  <version>1.0.0</version>
+  <classifier>plain</classifier>
 </dependency>
 ````
 
 For Gradle projects, add the following to your build.gradle:
 ````
 dependencies {
-implementation 'com.yourcompany:spring-logging-helper:1.0.0'
+    implementation 'io.github.camaine:spring-logging-helper:1.0.0'
 }
 ````
 
