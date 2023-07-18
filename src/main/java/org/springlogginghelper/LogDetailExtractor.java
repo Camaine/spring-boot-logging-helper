@@ -2,6 +2,8 @@ package org.springlogginghelper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -85,9 +87,11 @@ public class LogDetailExtractor {
         String packageName = method.getDeclaringClass().getName();
         String methodName = method.getName();
         String statusCode = Integer.toString(response.getStatus());
-
-        // Populate LogDetails object
         LogDetails logDetails = new LogDetails();
+
+        response.getHeaderNames();
+        // Populate LogDetails object
+
         logDetails.setVersion("1.0.0");
         logDetails.setLogType("RESPONSE");
         logDetails.setLevel("INFO");
@@ -199,13 +203,13 @@ public class LogDetailExtractor {
         return sw.toString();
     }
 
-    private String getRequestPayload(HttpServletRequest request) {
+    private JsonElement getRequestPayload(HttpServletRequest request) {
         String requestBody = (String) request.getAttribute("requestBody");
         return requestBodyParser(requestBody);
     }
 
 
-    private String requestBodyParser(String request) {
+    private JsonElement requestBodyParser(String request) {
         ObjectMapper objectMapper = new ObjectMapper();
         StringBuilder modifiedRequest = new StringBuilder();
         try {
@@ -215,30 +219,38 @@ public class LogDetailExtractor {
             // Handle the exception...
             log.error(e.getMessage());
         }
-        return modifiedRequest.toString();
+        return new JsonParser().parse(modifiedRequest.toString());
     }
 
     private void parseNode(JsonNode jsonNode, StringBuilder modifiedRequest, String parentKey, boolean isRoot) {
         if (jsonNode.isObject()) {
-            modifiedRequest.append("{\n");
+            modifiedRequest.append("{");
             Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
             while (iterator.hasNext()) {
                 Map.Entry<String, JsonNode> entry = iterator.next();
                 String key = entry.getKey();
                 //String key = isRoot ? entry.getKey() : parentKey + "." + entry.getKey();
                 if(!configDetails.getExcludeRequestAttributes().contains(key)){
-                    modifiedRequest.append("\"").append(key).append("\": ");
-                    parseNode(RegexValidator.maskingIfRegexMatched(entry.getValue()), modifiedRequest, key, false);
+                    modifiedRequest.append("\"").append(key).append("\":");
+                    // if the value of the key is an object, call the method recursively
+                    if (entry.getValue().isObject()) {
+                        parseNode(RegexValidator.maskingIfRegexMatched(entry.getValue()), modifiedRequest, key, false);
+                    } else {
+                        // if the value of the key is a primitive type, print it directly
+                        modifiedRequest.append("").append(RegexValidator.maskingIfRegexMatched(entry.getValue())).append("");
+                    }
                     if (iterator.hasNext()) {
-                        modifiedRequest.append(",\n");
+                        modifiedRequest.append(",");
                     }
                 }
             }
-            modifiedRequest.append("\n}");
+            modifiedRequest.append("}");
         } else {
-            modifiedRequest.append("\"").append(jsonNode.asText()).append("\"");
+            modifiedRequest.append("").append(RegexValidator.maskingIfRegexMatched(jsonNode)).append("");
         }
     }
+
+
 
 
 }

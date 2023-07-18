@@ -14,12 +14,14 @@ public class RegexValidator {
 
         if(isPersonalIdentificationNumber(value)) {
             value = maskingPersonalIdentificationNumber(value);
+            return new TextNode(value);
         }
         else if(isPhoneNumber(value)) {
             value = maskingPhoneNumber(value);
+            return new TextNode(value);
         }
 
-        return new TextNode(value);
+        return jsonNode;
     }
 
 

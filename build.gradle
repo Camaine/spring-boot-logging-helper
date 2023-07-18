@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.1.1'
+    id 'org.springframework.boot' version '3.0.1'
     id 'io.spring.dependency-management' version '1.1.0'
 }
 
@@ -51,12 +51,39 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+            groupId = 'io.github.camaine'
             artifactId = 'spring-logging-helper'
+            version = '1.0.0'
+
+            pom {
+                name = 'Spring Logging Helper'
+                description = 'A helper library for logging in Spring applications'
+                url = 'https://github.com/camaine/spring-logging-helper'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'camaine'
+                        name = 'Juwon Kim'
+                        email = 'kang9290@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/camaine/spring-logging-helper.git'
+                    developerConnection = 'scm:git:ssh://github.com:camaine/spring-logging-helper.git'
+                    url = 'https://github.com/camaine/spring-logging-helper'
+                }
+            }
         }
     }
+
     repositories {
         maven {
-            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
             credentials {
                 username = ossrhUsername
                 password = ossrhPassword

@@ -54,16 +54,16 @@ public class JSONLogging {
         }
 
         jsonObject.addProperty(JSONContext.REQ_ID, logDetails.getReqId());
-        jsonObject.addProperty(JSONContext.REQ_USER_ID, logDetails.getReqUserId());
-        jsonObject.addProperty(JSONContext.REQUEST_BODY, logDetails.getRequestBody());
+//        jsonObject.addProperty(JSONContext.REQ_USER_ID, logDetails.getReqUserId());
+        jsonObject.add(JSONContext.REQUEST_BODY, logDetails.getRequestBody());
         jsonObject.addProperty(JSONContext.MESSAGE, logDetails.getMessage());
         jsonObject.addProperty(JSONContext.PACKAGE_NAME, logDetails.getPackageName());
-        jsonObject.addProperty(JSONContext.ENV, logDetails.getEnvironment());
-        jsonObject.addProperty(JSONContext.OS_TYPE, logDetails.getOsType());
-        jsonObject.addProperty(JSONContext.BROWSER_TYPE, logDetails.getBrowserType());
-        jsonObject.addProperty(JSONContext.BROWSER_LANG, logDetails.getBrowserLang());
-        jsonObject.addProperty(JSONContext.CLIENT_TIMESTAMP, logDetails.getClientTimestamp());
-        jsonObject.addProperty(JSONContext.STATUS, logDetails.getStatus());
+//        jsonObject.addProperty(JSONContext.ENV, logDetails.getEnvironment());
+//        jsonObject.addProperty(JSONContext.OS_TYPE, logDetails.getOsType());
+//        jsonObject.addProperty(JSONContext.BROWSER_TYPE, logDetails.getBrowserType());
+//        jsonObject.addProperty(JSONContext.BROWSER_LANG, logDetails.getBrowserLang());
+//        jsonObject.addProperty(JSONContext.CLIENT_TIMESTAMP, logDetails.getClientTimestamp());
+//        jsonObject.addProperty(JSONContext.STATUS, logDetails.getStatus());
 
         return jsonObject;
     }
@@ -76,12 +76,12 @@ public class JSONLogging {
         jsonObject.addProperty(JSONContext.LEVEL, logDetails.getLevel());
         jsonObject.addProperty(JSONContext.TIMESTAMP, logDetails.getTimestamp());
         jsonObject.addProperty(JSONContext.REQ_ID, logDetails.getReqId());
-        jsonObject.addProperty(JSONContext.REQ_USER_ID, logDetails.getReqUserId());
-        jsonObject.addProperty(JSONContext.RESPONSE_BODY, logDetails.getResponseBody());
+//        jsonObject.addProperty(JSONContext.REQ_USER_ID, logDetails.getReqUserId());
+//        jsonObject.addProperty(JSONContext.RESPONSE_BODY, logDetails.getResponseBody());
         jsonObject.addProperty(JSONContext.MESSAGE, logDetails.getMessage());
         jsonObject.addProperty(JSONContext.PACKAGE_NAME, logDetails.getPackageName());
-        jsonObject.addProperty(JSONContext.ENV, logDetails.getEnvironment());
-        jsonObject.addProperty(JSONContext.CLIENT_TIMESTAMP, logDetails.getClientTimestamp());
+//        jsonObject.addProperty(JSONContext.ENV, logDetails.getEnvironment());
+//        jsonObject.addProperty(JSONContext.CLIENT_TIMESTAMP, logDetails.getClientTimestamp());
         jsonObject.addProperty(JSONContext.STATUS, logDetails.getStatus());
 
         return jsonObject;
@@ -95,10 +95,10 @@ public class JSONLogging {
         jsonObject.addProperty(JSONContext.LEVEL, logDetails.getLevel());
         jsonObject.addProperty(JSONContext.TIMESTAMP, logDetails.getTimestamp());
         jsonObject.addProperty(JSONContext.REQ_ID, logDetails.getReqId());
-        jsonObject.addProperty(JSONContext.REQ_USER_ID, logDetails.getReqUserId());
+//        jsonObject.addProperty(JSONContext.REQ_USER_ID, logDetails.getReqUserId());
         jsonObject.addProperty(JSONContext.PACKAGE_NAME, logDetails.getPackageName());
-        jsonObject.addProperty(JSONContext.ENV, logDetails.getEnvironment());
-        jsonObject.addProperty(JSONContext.CLIENT_TIMESTAMP, logDetails.getClientTimestamp());
+//        jsonObject.addProperty(JSONContext.ENV, logDetails.getEnvironment());
+//        jsonObject.addProperty(JSONContext.CLIENT_TIMESTAMP, logDetails.getClientTimestamp());
         jsonObject.addProperty(JSONContext.STATUS, logDetails.getStatus());
         jsonObject.addProperty(JSONContext.EXCEPTION_STACK_TRACE, logDetails.getExceptionStackTrace());
 

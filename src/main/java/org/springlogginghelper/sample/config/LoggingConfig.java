@@ -31,7 +31,7 @@ public class LoggingConfig extends LoggingConfiguration{
     @Bean
     public void addHeaderAttribute() {
         //Single Header Attribute Exclude
-        addIncludeHeader("test-header");
+        addIncludeHeader("tenant-context");
 
         //Multi Header Attribute Exclude
         addIncludeHeaderList(List.of("test-header1", "test-header2"));
