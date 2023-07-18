@@ -14,6 +14,8 @@ build/
 .springBeans
 .sts4-cache
 bin/
+build.gradle
+src/main/resources/**
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
