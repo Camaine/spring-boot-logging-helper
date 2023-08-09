@@ -21,12 +21,12 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    runtimeOnly 'org.aspectj:aspectjrt:1.9.19'
     implementation 'com.google.code.gson:gson:2.9.0'
     compileOnly 'org.projectlombok:lombok'
+    //compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
-    testImplementation 'junit:junit:4.13.1'
 }
 
 tasks.named('test') {

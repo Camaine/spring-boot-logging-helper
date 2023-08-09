@@ -43,6 +43,11 @@ public class LoggingAnnotationAdvisor implements PointcutAdvisor, MethodIntercep
         try {
             result = invocation.proceed();
             HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
+
+            if(result == null) {
+                result = "null";
+            }
+
             logDetails = logDetailExtractor.fromResponse(invocation.getMethod(), result, response);
             jsonLogging.responseLogging(logDetails);
         } catch (Throwable error) {
@@ -56,5 +61,12 @@ public class LoggingAnnotationAdvisor implements PointcutAdvisor, MethodIntercep
     @Override
     public boolean isPerInstance() {
         return false;
+    }
+
+    public void tbd(MethodInvocation invocation) {
+        Object[] args = invocation.getArguments();
+        if (args.length > 0) {
+            //args[0] = requestBody;
+        }
     }
 }

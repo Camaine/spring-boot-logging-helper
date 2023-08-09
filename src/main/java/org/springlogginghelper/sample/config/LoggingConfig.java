@@ -20,12 +20,12 @@ public class LoggingConfig extends LoggingConfiguration{
         //Single Attribute Exclude
         addExcludeRequest("testAttributeExclude");
         addExcludeResponse("test");
-        addExcludeException(new RuntimeException());
+        //addExcludeException(new RuntimeException());
 
         //Multi Attribute Exclude
         addExcludeRequestList(List.of("testAttributeExclude1", "testAttributeExclude2"));
         addExcludeResponseList(List.of("test1", "test2"));
-        addExcludeExceptionList(List.of(new RuntimeException(), new IllegalArgumentException()));
+        //addExcludeExceptionList(List.of(new RuntimeException(), new IllegalArgumentException()));
     }
 
     @Bean
