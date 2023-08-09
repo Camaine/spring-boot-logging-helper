@@ -21,182 +21,118 @@ import java.util.logging.Logger;
 
 @Slf4j
 public class LogDetailExtractor {
-    private final Environment env;
+    private static final String DEFAULT_VERSION = "1.0.0";
+    private static final String DEFAULT_LOG_LEVEL = "INFO";
+    private static final String EXCEPTION_LOG_LEVEL = "ERROR";
+    private static final String DEFAULT_ENVIRONMENT = "local";
+    private static final String TIMESTAMP_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
-    private final ConfigDetails configDetails;
+    private static Environment env = null;
+    private static ConfigDetails configDetails = new ConfigDetails();
+    private final ObjectMapper objectMapper;
 
-    public LogDetailExtractor(Environment env, ConfigDetails configDetails) {
+    public LogDetailExtractor(Environment env, ConfigDetails configDetails, ObjectMapper objectMapper) {
         this.env = env;
         this.configDetails = configDetails;
+        this.objectMapper = objectMapper;
     }
 
     public LogDetails fromRequest(Method method, HttpServletRequest request) {
-
         LogDetails logDetails = new LogDetails();
-
-        try {
-            request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        } catch (IllegalStateException ignored) {}
-
-        Enumeration<String> headerNames = request.getHeaderNames();
-        if (headerNames != null) {
-            while (headerNames.hasMoreElements()) {
-                String headerName = headerNames.nextElement();
-                String headerValue = EncryptionDecoder.decodeBase64(request.getHeader(headerName));
-                // check if header is in excluded headers list
-                if (!configDetails.getExcludeRequestAttributes().contains(headerName)
-                        && configDetails.getIncludeHeaderAttributes().contains(headerName)) {
-                    logDetails.addHeader(headerName, headerValue);
-                }
-            }
-        }
-
-        JSONLogging.setTrxId();
-
-        // Extract values
-        String packageName = method.getDeclaringClass().getName();
-        String methodName = method.getName();
-        String osType = extractOsType(request);
-        String browserType = extractBrowserType(request);
-        String browserLang = extractBrowserLang(request);
-        String clientTimestamp = getCurrentTimestamp();
-
-        // Populate LogDetails object
-
-        logDetails.setVersion("1.0.0");
-        logDetails.setLogType("REQUEST");
-        logDetails.setLevel("INFO");
-        logDetails.setTimestamp(getCurrentTimestamp());
-        logDetails.setReqId(JSONLogging.getTrxId());
-        logDetails.setReqUserId("defaultUser");
+        logDetails.setLevel(DEFAULT_LOG_LEVEL);
+        populateCommonFields(logDetails, method);
+        extractHeadersFromRequest(request, logDetails);
         logDetails.setRequestBody(getRequestPayload(request));
-        logDetails.setMessage("Executing method: " + methodName);
-        logDetails.setPackageName(packageName);
-        logDetails.setEnvironment(getEnvironment());
-        logDetails.setOsType(osType);
-        logDetails.setBrowserType(browserType);
-        logDetails.setBrowserLang(browserLang);
-        logDetails.setClientTimestamp(clientTimestamp);
-
         return logDetails;
     }
-
 
     public LogDetails fromResponse(Method method, Object result, HttpServletResponse response) {
-        // Obtain required information
-        String packageName = method.getDeclaringClass().getName();
-        String methodName = method.getName();
-        String statusCode = Integer.toString(response.getStatus());
         LogDetails logDetails = new LogDetails();
-
-        response.getHeaderNames();
-        // Populate LogDetails object
-
-        logDetails.setVersion("1.0.0");
-        logDetails.setLogType("RESPONSE");
-        logDetails.setLevel("INFO");
-        logDetails.setTimestamp(getCurrentTimestamp());
-        logDetails.setReqId(JSONLogging.getTrxId());
-        logDetails.setReqUserId("defaultUser");
-        logDetails.setResponseBody(result.toString()); // Depending on your response type, you may want to format this differently
-        logDetails.setMessage("Method executed: " + methodName);
-        logDetails.setPackageName(packageName);
-        logDetails.setEnvironment(getEnvironment());
-        logDetails.setStatus(statusCode);
-
+        populateCommonFields(logDetails, method);
+        logDetails.setVersion(DEFAULT_VERSION);
+        logDetails.setLevel(DEFAULT_LOG_LEVEL);
+        logDetails.setResponseBody(result.toString());
+        logDetails.setStatus(Integer.toString(response.getStatus()));
         return logDetails;
     }
 
-
-    public LogDetails fromThrowable(Throwable error) {
-
+    public static LogDetails fromThrowable(Throwable error) {
         if(configDetails.getExcludeExceptionAttributes().contains(error.getClass().getName())){
             return null;
         }
 
-        // Values that could be constants
-        String logType = "EXCEPTION";
-        String level = "ERROR";
-
-        // Message and user id - placeholders for now
-        String message = error.getMessage();
-        String reqUserId = "defaultUser";
-
-        // Values that might need to be generated on the fly
-        String version = getVersion();
-        String timestamp = getCurrentTimestamp();
-        String reqId = getRequestId();
-        String clientTimestamp = getCurrentTimestamp();
-        String status = "500"; // HTTP status 500 indicates server error
-
-        // Stack trace of the exception
-        String exceptionStackTrace = error.getMessage();
-
         LogDetails logDetails = new LogDetails();
-        logDetails.setVersion(version);
-        logDetails.setLogType(logType);
-        logDetails.setLevel(level);
-        logDetails.setTimestamp(timestamp);
-        logDetails.setReqId(reqId);
-        logDetails.setReqUserId(reqUserId);
-        logDetails.setMessage(message);
-        logDetails.setEnvironment(getEnvironment());
-        logDetails.setClientTimestamp(clientTimestamp);
-        logDetails.setStatus(status);
-        logDetails.setExceptionStackTrace(exceptionStackTrace);
-
+        populateExceptionFields(logDetails, error);
         return logDetails;
     }
 
-    private String getApiStatus(HttpServletResponse response) {
-        if (response != null) {
-            return String.valueOf(response.getStatus());
-        }
-        return "200";
+    public static LogDetails fromMessage(String logType, String message) {
+        LogDetails logDetails = new LogDetails();
+        populateMessageFields(logDetails, logType, message);
+        return logDetails;
     }
 
-    private String getEnvironment() {
+    private void populateCommonFields(LogDetails logDetails, Method method) {
+        logDetails.setTimestamp(getCurrentTimestamp());
+        logDetails.setReqId(JSONLogging.getTrxId());
+        logDetails.setPackageName(method.getDeclaringClass().getName());
+        logDetails.setEnvironment(getEnvironment());
+    }
+
+    private static void populateExceptionFields(LogDetails logDetails, Throwable error) {
+        logDetails.setVersion(getVersion());
+        logDetails.setLogType("EXCEPTION");
+        logDetails.setLevel(EXCEPTION_LOG_LEVEL);
+        logDetails.setTimestamp(getCurrentTimestamp());
+        logDetails.setReqId(getRequestId());
+        logDetails.setMessage(error.getMessage());
+        logDetails.setEnvironment(getEnvironment());
+        logDetails.setClientTimestamp(getCurrentTimestamp());
+        logDetails.setStatus("500");
+        logDetails.setExceptionStackTrace(getStackTrace(error));
+    }
+
+    private static void populateMessageFields(LogDetails logDetails, String logType, String message) {
+        logDetails.setVersion(getVersion());
+        logDetails.setLogType(logType);
+        logDetails.setLevel("INFO");
+        logDetails.setTimestamp(getCurrentTimestamp());
+        logDetails.setReqId(getRequestId());
+        logDetails.setMessage(message);
+        logDetails.setEnvironment(getEnvironment());
+        logDetails.setClientTimestamp(getCurrentTimestamp());
+        logDetails.setStatus("200");
+    }
+
+    private void extractHeadersFromRequest(HttpServletRequest request, LogDetails logDetails) {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = EncryptionDecoder.decodeBase64(request.getHeader(headerName));
+            if (!configDetails.getExcludeRequestAttributes().contains(headerName) && configDetails.getIncludeHeaderAttributes().contains(headerName)) {
+                logDetails.addHeader(headerName, headerValue);
+            }
+        }
+    }
+
+    private static String getCurrentTimestamp() {
+        return new SimpleDateFormat(TIMESTAMP_PATTERN).format(new Date());
+    }
+
+    private static String getEnvironment() {
         String[] activeProfiles = env.getActiveProfiles();
-        String environment = "local";
-        if (activeProfiles.length > 0) {
-            environment = activeProfiles[0];
-        }
-        return environment;
+        return activeProfiles.length > 0 ? activeProfiles[0] : DEFAULT_ENVIRONMENT;
     }
 
-    private String getVersion() {
-        // Replace this with your actual version retrieval logic
-        return "1.0.0";
+    private static String getVersion() {
+        return DEFAULT_VERSION; // You might want to change this based on where you get the actual version from.
     }
 
-    private String getCurrentTimestamp() {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(new Date());
+    private static String getRequestId() {
+        return UUID.randomUUID().toString(); // This is a placeholder. You might want to change this.
     }
 
-    private String getTransactionId() {
-        // This is a placeholder. Replace with actual transaction ID generation logic
-        return UUID.randomUUID().toString();
-    }
-
-    private String getRequestId() {
-        // This is a placeholder. Replace with actual request ID generation logic
-        return UUID.randomUUID().toString();
-    }
-
-    // These are placeholder methods, replace with actual implementation
-    private String extractOsType(HttpServletRequest request) {
-        return "Linux"; // Placeholder
-    }
-
-    private String extractBrowserType(HttpServletRequest request) {
-        return "Chrome"; // Placeholder
-    }
-
-    private String extractBrowserLang(HttpServletRequest request) {
-        return "en-US"; // Placeholder
-    }
-
-    private String getStackTrace(Throwable error) {
+    private static String getStackTrace(Throwable error) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         error.printStackTrace(pw);
@@ -208,49 +144,52 @@ public class LogDetailExtractor {
         return requestBodyParser(requestBody);
     }
 
-
     private JsonElement requestBodyParser(String request) {
-        ObjectMapper objectMapper = new ObjectMapper();
         StringBuilder modifiedRequest = new StringBuilder();
         try {
             JsonNode jsonNode = objectMapper.readTree(request);
-            parseNode(jsonNode, modifiedRequest, "", true);
+            parseNode(jsonNode, modifiedRequest);
         } catch (IOException e) {
-            // Handle the exception...
             log.error(e.getMessage());
         }
         return new JsonParser().parse(modifiedRequest.toString());
     }
 
-    private void parseNode(JsonNode jsonNode, StringBuilder modifiedRequest, String parentKey, boolean isRoot) {
+    private void parseNode(JsonNode jsonNode, StringBuilder modifiedRequest) {
         if (jsonNode.isObject()) {
             modifiedRequest.append("{");
             Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
+
+            boolean firstElementProcessed = false; // This flag will be used to check if we need to append comma or not.
+
             while (iterator.hasNext()) {
                 Map.Entry<String, JsonNode> entry = iterator.next();
                 String key = entry.getKey();
-                //String key = isRoot ? entry.getKey() : parentKey + "." + entry.getKey();
-                if(!configDetails.getExcludeRequestAttributes().contains(key)){
-                    modifiedRequest.append("\"").append(key).append("\":");
-                    // if the value of the key is an object, call the method recursively
-                    if (entry.getValue().isObject()) {
-                        parseNode(RegexValidator.maskingIfRegexMatched(entry.getValue()), modifiedRequest, key, false);
-                    } else {
-                        // if the value of the key is a primitive type, print it directly
-                        modifiedRequest.append("").append(RegexValidator.maskingIfRegexMatched(entry.getValue())).append("");
-                    }
-                    if (iterator.hasNext()) {
+
+                if (!configDetails.getExcludeRequestAttributes().contains(key)) {
+
+                    // Appending comma if it's not the first element being processed
+                    if (firstElementProcessed) {
                         modifiedRequest.append(",");
+                    } else {
+                        firstElementProcessed = true;
+                    }
+
+                    modifiedRequest.append("\"").append(key).append("\":");
+
+                    if (entry.getValue().isObject()) {
+                        parseNode(RegexValidator.maskingIfRegexMatched(entry.getValue()), modifiedRequest);
+                    } else {
+                        modifiedRequest.append(RegexValidator.maskingIfRegexMatched(entry.getValue()));
                     }
                 }
             }
+
             modifiedRequest.append("}");
         } else {
-            modifiedRequest.append("").append(RegexValidator.maskingIfRegexMatched(jsonNode)).append("");
+            modifiedRequest.append(RegexValidator.maskingIfRegexMatched(jsonNode));
         }
     }
-
-
 
 
 }

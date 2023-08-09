@@ -21,12 +21,12 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    runtimeOnly 'org.aspectj:aspectjrt:1.9.19'
     implementation 'com.google.code.gson:gson:2.9.0'
     compileOnly 'org.projectlombok:lombok'
+    //compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.3.1'
-    testImplementation 'junit:junit:4.13.1'
 }
 
 tasks.named('test') {
@@ -46,3 +46,53 @@ jar {
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId = 'io.github.camaine'
+            artifactId = 'spring-logging-helper'
+            version = '1.0.0'
+
+            pom {
+                name = 'Spring Logging Helper'
+                description = 'A helper library for logging in Spring applications'
+                url = 'https://github.com/camaine/spring-logging-helper'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'camaine'
+                        name = 'Juwon Kim'
+                        email = 'kang9290@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/camaine/spring-logging-helper.git'
+                    developerConnection = 'scm:git:ssh://github.com:camaine/spring-logging-helper.git'
+                    url = 'https://github.com/camaine/spring-logging-helper'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
