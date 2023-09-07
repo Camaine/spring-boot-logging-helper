@@ -113,3 +113,27 @@ public String yourController(@RequestBody YourRequestBodyModel model) {
     // Your method implementation
 }
 ````
+To log a method with a exception message, use LoggingException.logException(e) in the catch block
+
+````
+@Logging
+@RequestMapping("/testExceptionCatch")
+public String testExceptionCatchEndpoint() {
+    try {
+        throw new RuntimeException("This is a test exception catch.");
+    } catch(RuntimeException e) {
+        LoggingException.logException(e);
+    }
+    return "test";
+}
+````
+
+To log custom messages, use LoggingMessage.logMessage(message) method
+
+````
+@Logging
+@EventListener
+public void handleCustomEvent(CustomEvent event) {
+    LoggingCustom.logCustom("Listener", event.getMessage());
+}
+````

@@ -8,7 +8,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 group = 'io.github.camaine'
-version = '1.0.0'
+version = '1.0.1'
 
 java {
     sourceCompatibility = '17'
