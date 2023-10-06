@@ -8,8 +8,8 @@ Sample Code is [here](https://github.com/Camaine/spring-logging-helper/tree/main
 
 To use this library, you'll need:
 
-* Java 17 or higher.
-* Spring Boot 3.x.x
+* Java 8 or higher.
+* Spring Boot 2.7.3 or higher
 
 ## Installation
 
