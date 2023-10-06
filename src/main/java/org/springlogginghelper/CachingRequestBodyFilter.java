@@ -1,8 +1,10 @@
 package org.springlogginghelper;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.util.StreamUtils;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
