@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.0.1'
+    id 'org.springframework.boot' version '2.7.3'
     id 'io.spring.dependency-management' version '1.1.0'
 }
 
@@ -11,7 +11,7 @@ group = 'io.github.camaine'
 version = '1.0.1'
 
 java {
-    sourceCompatibility = '17'
+    sourceCompatibility = '8'
 }
 
 repositories {
@@ -24,7 +24,7 @@ dependencies {
     runtimeOnly 'org.aspectj:aspectjrt:1.9.19'
     implementation 'com.google.code.gson:gson:2.9.0'
     compileOnly 'org.projectlombok:lombok'
-    //compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:4.0.4'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

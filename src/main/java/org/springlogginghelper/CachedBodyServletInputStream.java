@@ -1,8 +1,7 @@
 package org.springlogginghelper;
 
-import jakarta.servlet.ReadListener;
-import jakarta.servlet.ServletInputStream;
-
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
